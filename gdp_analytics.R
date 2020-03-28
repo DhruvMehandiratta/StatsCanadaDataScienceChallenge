@@ -3,7 +3,7 @@ library(ggplot2)
 library(reshape2)
 library(Information)
 library(DescTools)
-
+library(randomForest)
 
 
 ## Loading the International Payments File
@@ -334,3 +334,33 @@ write.csv(MASTER_DATA, "MASTER_DATA.csv", row.names = FALSE)
 #predict(model1, data.frame(MASTER_DATA$InternatIonal_Payments=915377))
 #helper <- expand.grid(MASTER_DATA$InternatIonal_Payments==915377, MASTER_DATA$Unemployment_Rate=5.8)
 #predict(model1,newdata = helper)
+
+
+
+
+########### random forest    28 MARCH
+#data_set_size = floor(nrow(MASTER_DATA)*0.80)
+#index <- sample(1:nrow(MASTER_DATA), size=data_set_size)
+
+#training <- MASTER_DATA[index,]
+training <- MASTER_DATA %>% filter(MASTER_DATA$ï..REF_DATE>1998, MASTER_DATA$ï..REF_DATE<2014)
+nrow(training)
+
+#testing <- MASTER_DATA[-index,]
+testing <- MASTER_DATA %>% filter(MASTER_DATA$ï..REF_DATE>2013, MASTER_DATA$ï..REF_DATE<2019)
+nrow(testing)
+
+#rf <- randomForest(Annual_GDP ~ ., data=training, mtry=4, ntree=2001, importance=TRUE)
+rf <- randomForest(Annual_GDP ~ InternatIonal_Payments + Unemployment_Rate + 
+  US_Dollars + IMF_Position + International_Reserves + 
+  TSE_FI + CDI_TBV + FDI_TBV + RETAIL + 
+  TOURISM + Salary_Value + Import + Export + 
+  Real_Estate + Real_Estate_Lease_Rental, data=training, na.action=na.roughfix, mtry=4, ntree=2001, importance=TRUE)
+
+rf
+plot(rf)
+
+#result <- data.frame(testing$Annual_GDP, predict(rf, testing[,1:11], type = "response"))
+result <- data.frame(testing$Annual_GDP, predict(rf, testing, type = "response"))
+head(result)
+plot(result)
