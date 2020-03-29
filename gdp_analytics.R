@@ -6,6 +6,10 @@ library(DescTools)
 library(randomForest)
 library(ggcorrplot)
 library(FactoMineR)
+library(rpart)
+library(rpart.plot)
+library(Metrics)
+
 
 
 ## Loading the International Payments File
@@ -376,12 +380,24 @@ summary(mlr_model)
 predict(mlr_model, newdata = pred_2016)
 ####  Actual = 1530024    Predicted = 1530627 
 
+rmse (actual = 1530024 , predicted = 1530627)
+#### 603
+
+
+
 predict(mlr_model, newdata = pred_2017)
 ####  Actual = 1649934    Predicted = 1634087 
+
+rmse (actual = 1649934 , predicted = 1634087)
+#### 15847
+
+
 
 predict(mlr_model, newdata = pred_2018)
 ####  Actual = 1712479    Predicted = 1729176 
 
+rmse (actual = 1712479 , predicted = 1729176)
+#### 16697
 
 
 
@@ -432,7 +448,54 @@ predicted <- data.frame(pred_set$Annual_GDP, predict(rf_model, pred_set, type = 
 #             1712479                 1507169
 
 
+str(predicted)
+
+rmse(actual = predicted$pred_set.Annual_GDP , 
+     predicted = predicted$predict.rf_model..pred_set..type....response..)
+
+##### 129463.8
+
+################ Regression Tree Model ############################
+
+MASTER_DATA_filter <- filter(MASTER_DATA ,
+                             MASTER_DATA$REF_DATE >= 1999,
+                             MASTER_DATA$REF_DATE < 2016)
+
+set.seed(123)
+assignment <- sample(1:3, size = nrow(MASTER_DATA_filter), prob = c(0.7, 0.15, 0.15), replace = TRUE)
+
+# Create a train, validation and tests from the original data frame 
+mdf_train <- MASTER_DATA_filter[assignment == 1, ]   # subset Master_DATA to training indices only
+mdf_valid <- MASTER_DATA_filter[assignment == 2, ]   # subset Master_DATA to validation indices only
+mdf_test  <- MASTER_DATA_filter[assignment == 3, ]   # subset Master_DATA to test indices only
+
+# Train the model
+rt_model <- rpart(formula = Annual_GDP ~ InternatIonal_Payments + Unemployment_Rate + 
+                    US_Dollars + IMF_Position + International_Reserves + 
+                    TSE_FI + CDI_TBV + FDI_TBV + RETAIL + 
+                    TOURISM + Salary_Value + Import + Export + 
+                    Real_Estate + Real_Estate_Lease_Rental, 
+                  data = mdf_train, 
+                  method = "anova")
 
 
+# Look at the model output                      
+print(rt_model)
 
+
+# Generate predictions on a test set
+pred <- predict(object = rt_model,   
+                newdata = mdf_test)   
+
+pred_valid <- predict(object = rt_model,   
+                      newdata = mdf_valid)  
+
+# Compute the RMSE
+rmse(actual = mdf_test$Annual_GDP, 
+     predicted = pred)
+##### 644579.1
+
+rmse(actual = mdf_valid$Annual_GDP, 
+     predicted = pred_valid)
+#####  404454.1
 
