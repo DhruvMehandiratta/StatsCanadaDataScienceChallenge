@@ -321,7 +321,7 @@ str(MASTER_DATA_filter)
 
 md_correl <- cor(MASTER_DATA_filter[c(4:18)] , use = "complete.obs")
 
-ggcorrplot(md_correl, method ="circle")
+ggcorrplot(md_correl)
 
 ggcorrplot_clustered <- ggcorrplot(md_correl, hc.order = TRUE, type = "lower")
 
@@ -356,9 +356,10 @@ pred_2018 <- select (MASTER_DATA , InternatIonal_Payments, Unemployment_Rate, US
                      TOURISM, Salary_Value, Import, Export, Real_Estate, Real_Estate_Lease_Rental) %>%
   filter(MASTER_DATA$REF_DATE == 2018)
 
-#######################################################################
 
-###########Linear Regression Model##################
+
+#######################################################################
+###########Linear Regression Model#####################################
 
 
 
@@ -423,16 +424,16 @@ summary(rf_model)
 ####    Number of trees: 2001
 ####    No. of variables tried at each split: 4
 
-####    Mean of squared residuals: 14330975657
-####    % Var explained: 90.75
+####    Mean of squared residuals: 35260190932
+####    % Var explained: 87.94
 
 plot(rf_model)
 
 result <- data.frame(MASTER_DATA_TEST$Annual_GDP, predict(rf_model, MASTER_DATA_TEST, type = "response"))
 #                      Actual                        Predicted            
-#                      1846595                       1791554
-#                      1805745                       1763248
-#                      1556506                       1633319
+#                      1846595                       1786687
+#                      1805745                       1759556
+#                      1556506                       1630753
 
 
 head(result)
@@ -443,9 +444,9 @@ pred_set <- MASTER_DATA %>%
 
 predicted <- data.frame(pred_set$Annual_GDP, predict(rf_model, pred_set, type = "response"))
 #             Actual                  Predicted              
-#             1530024                 1599979
-#             1649934                 1593044
-#             1712479                 1507169
+#             1530024                 1598421
+#             1649934                 1596030
+#             1712479                 1480757
 
 
 str(predicted)
@@ -453,7 +454,7 @@ str(predicted)
 rmse(actual = predicted$pred_set.Annual_GDP , 
      predicted = predicted$predict.rf_model..pred_set..type....response..)
 
-##### 129463.8
+##### 142920.5
 
 ################ Regression Tree Model ############################
 
@@ -498,4 +499,146 @@ rmse(actual = mdf_test$Annual_GDP,
 rmse(actual = mdf_valid$Annual_GDP, 
      predicted = pred_valid)
 #####  404454.1
+
+
+
+########################################## Alternate Approach########################################## 
+####################################################################################################### 
+####################################################################################################### 
+####################################################################################################### 
+####################################################################################################### 
+####################################################################################################### 
+####################################################################################################### 
+####################################################################################################### 
+####################################################################################################### 
+####################################################################################################### 
+
+
+
+
+MLR_TRAIN <- MASTER_DATA %>%
+  filter( MASTER_DATA$REF_DATE >=1999 , MASTER_DATA$REF_DATE <=2015)
+
+
+###########     Linear Regression Model with filetered Data ##################
+
+
+
+mlr_model_new <- lm(Annual_GDP ~ InternatIonal_Payments  + Unemployment_Rate +
+                      US_Dollars + IMF_Position + International_Reserves + 
+                      TSE_FI + CDI_TBV + FDI_TBV + RETAIL + 
+                      TOURISM + Salary_Value + Import + Export + 
+                      Real_Estate + Real_Estate_Lease_Rental, data=MLR_TRAIN)
+
+summary(mlr_model_new)
+
+###########     Residual standard error: 78250 on 1 degrees of freedom
+###########     Multiple R-squared:  0.9979,	Adjusted R-squared:  0.9662 
+###########     F-statistic: 31.48 on 15 and 1 DF,  p-value: 0.1391
+
+
+
+
+predict(mlr_model_new, newdata = pred_2016)
+####  Actual = 1530024    Predicted = 1604077 
+
+rmse (actual = 1530024 , predicted = 1604077 )
+####  74053
+
+
+
+predict(mlr_model_new, newdata = pred_2017)
+####  Actual = 1649934    Predicted = 1758862 
+
+rmse (actual = 1649934 , predicted = 1758862  )
+#### 108928
+
+
+
+predict(mlr_model_new, newdata = pred_2018)
+####  Actual = 1712479    Predicted = 2105717  
+
+rmse (actual = 1712479 , predicted = 2105717 )
+#### 393238
+
+
+
+############################ Linear Regression Model with SCALING ##########################################
+
+MLR_SCALED <- MASTER_DATA %>%
+  filter( MASTER_DATA$REF_DATE >=1999 , MASTER_DATA$REF_DATE <=2018)
+
+MLR_SCALED[,2] <-scale(MLR_SCALED[,2] )
+MLR_SCALED[,4:18] <-scale(MLR_SCALED[,4:18] )
+
+MLR_SCALED_TRAIN <- MLR_SCALED %>%
+  filter(MLR_SCALED$REF_DATE >=1999 ,  MLR_SCALED$REF_DATE <=2015)
+
+pred_2016_scaled <- select (MLR_SCALED , InternatIonal_Payments,  US_Dollars, IMF_Position,
+                            International_Reserves, TSE_FI, CDI_TBV, FDI_TBV, RETAIL,
+                            TOURISM, Salary_Value, Import, Export, Real_Estate, Real_Estate_Lease_Rental) %>%
+  filter(MLR_SCALED$REF_DATE == 2016)
+
+
+pred_2017_scaled <- select (MLR_SCALED , InternatIonal_Payments,  US_Dollars, IMF_Position,
+                            International_Reserves, TSE_FI, CDI_TBV, FDI_TBV, RETAIL,
+                            TOURISM, Salary_Value, Import, Export, Real_Estate, Real_Estate_Lease_Rental) %>%
+  filter(MLR_SCALED$REF_DATE == 2017)
+
+
+pred_2018_scaled <- select (MLR_SCALED , InternatIonal_Payments,  US_Dollars, IMF_Position,
+                            International_Reserves, TSE_FI, CDI_TBV, FDI_TBV, RETAIL,
+                            TOURISM, Salary_Value, Import, Export, Real_Estate, Real_Estate_Lease_Rental) %>%
+  filter(MLR_SCALED$REF_DATE == 2018)
+
+
+
+mlr_model_scaled <- lm(Annual_GDP ~ InternatIonal_Payments  + 
+                         US_Dollars + IMF_Position + International_Reserves + 
+                         TSE_FI + CDI_TBV + FDI_TBV + RETAIL + 
+                         TOURISM + Salary_Value + Import + Export + 
+                         Real_Estate + Real_Estate_Lease_Rental, data=MLR_SCALED_TRAIN)
+
+summary(mlr_model_scaled)
+
+###########     Residual standard error: 0.1359 on 2 degrees of freedom
+###########     Multiple R-squared:  0.9979,	Adjusted R-squared:  0.9829 
+###########     F-statistic: 66.67 on 14 and 2 DF,  p-value: 0.01487
+
+
+
+
+predict(mlr_model_scaled, newdata = pred_2016_scaled)
+####  Actual = 0.43044068	    Predicted = 0.6270653 
+
+
+
+rmse (actual = 0.43044068 , predicted = 0.6270653)
+#### 0.1966246
+
+
+
+predict(mlr_model_scaled, newdata = pred_2017_scaled)
+####  Actual = 0.72329693	    Predicted = 1.024896 
+
+
+rmse (actual = 0.72329693	 , predicted = 1.024896 )
+#### 0.3015991
+
+
+
+predict(mlr_model_scaled, newdata = pred_2018_scaled)
+####  Actual = 0.87605062    Predicted = 1.836856 
+
+
+
+rmse (actual = 0.87605062 , predicted = 1.836856 )
+#### 0.9608054
+
+
+
+
+
+
+
 
