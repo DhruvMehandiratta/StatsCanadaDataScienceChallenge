@@ -4,13 +4,15 @@ library(reshape2)
 library(Information)
 library(DescTools)
 library(randomForest)
+library(ggcorrplot)
+library(FactoMineR)
 
 
 ## Loading the International Payments File
 IP_DF <- read.csv("36100014.csv")
 
 ## Filtering and selecting only values of Total current Account Payments from the IP_DF data drame
-IP_DF_filter <- select (IP_DF, ï..REF_DATE, VALUE) %>%
+IP_DF_filter <- select (IP_DF, REF_DATE, VALUE) %>%
   filter(IP_DF$Receipts..payments.and.balances == "Payments", 
          IP_DF$Countries.or.regions == "All countries",
          IP_DF$Current.account.and.capital.account == "Total current account")
@@ -22,7 +24,7 @@ names(IP_DF_filter)[c(2)] <- c("InternatIonal_Payments")
 UR_DF <- read.csv("14100020.csv")
 
 ## Filtering and selecting only values of Unmemployemnt Rate from the UR_DF data drame
-UR_DF_filter <- select(UR_DF , ï..REF_DATE, VALUE ) %>%
+UR_DF_filter <- select(UR_DF , REF_DATE, VALUE ) %>%
   filter( UR_DF$GEO == "Canada" ,
           UR_DF$Labour.force.characteristics == "Unemployment rate" ,
           UR_DF$Educational.attainment == "Total, all education levels" ,
@@ -37,10 +39,10 @@ names(UR_DF_filter)[c(2)] <- c("Unemployment_Rate")
 International_Reserves <- read.csv("10100127.csv")
 
 ## Filtering and selecting only values for US Dollar reserves
-USD_filter <- select(International_Reserves , ï..REF_DATE, VALUE ) %>%
+USD_filter <- select(International_Reserves , REF_DATE, VALUE ) %>%
   filter( International_Reserves$Type.of.reserve == "Convertible foreign currencies, United States dollars",
-          International_Reserves$ï..REF_DATE %like% "%-01") %>%
-  mutate (ï..REF_DATE = substr(ï..REF_DATE, 1,4))
+          International_Reserves$REF_DATE %like% "%-01") %>%
+  mutate (REF_DATE = substr(REF_DATE, 1,4))
 
 
 names(USD_filter)[c(2)] <- c("US_Dollars")
@@ -48,28 +50,28 @@ names(USD_filter)[c(2)] <- c("US_Dollars")
 
 
 ## Filtering and selecting only values for Reserve position in the International Monetary Fund (IMF)
-IMF_position <- select(International_Reserves , ï..REF_DATE, VALUE ) %>%
+IMF_position <- select(International_Reserves , REF_DATE, VALUE ) %>%
   filter( International_Reserves$Type.of.reserve == "Reserve position in the International Monetary Fund (IMF)",
-          International_Reserves$ï..REF_DATE %like% "%-01") %>%
-  mutate (ï..REF_DATE = substr(ï..REF_DATE, 1,4))
+          International_Reserves$REF_DATE %like% "%-01") %>%
+  mutate (REF_DATE = substr(REF_DATE, 1,4))
 
 names(IMF_position)[c(2)] <- c("IMF_Position")
 
 
 ## Filtering and selecting only values for Total, Canada's official international reserves
-IR_official <-select(International_Reserves , ï..REF_DATE, VALUE ) %>%
+IR_official <-select(International_Reserves , REF_DATE, VALUE ) %>%
   filter( International_Reserves$Type.of.reserve == "Total, Canada's official international reserves",
-          International_Reserves$ï..REF_DATE %like% "%-01") %>%
-  mutate (ï..REF_DATE = substr(ï..REF_DATE, 1,4))
-  
+          International_Reserves$REF_DATE %like% "%-01") %>%
+  mutate (REF_DATE = substr(REF_DATE, 1,4))
+
 names(IR_official)[c(2)] <- c("International_Reserves")
 
-  
+
 ## Loading the Investments file
 Investments <- read.csv("36100009.csv")
 
 ## Filtering and selecting only values for Canadian direct investment abroad - Total Book Value
-CDI <- select (Investments, ï..REF_DATE, VALUE) %>%
+CDI <- select (Investments, REF_DATE, VALUE) %>%
   filter(Investments$North.American.Industry.Classification.System..NAICS. == "Total, all industries", 
          Investments$Canadian.and.foreign.direct.investment == "Canadian direct investment abroad - Total Book Value",
          Investments$Countries.or.regions == "Total, all countries")
@@ -78,7 +80,7 @@ names(CDI)[c(2)] <- c("CDI_TBV")
 
 
 ## Filtering and selecting only values for Foreign direct investment in Canada - Total Book Value
-FDI <- select (Investments, ï..REF_DATE, VALUE) %>%
+FDI <- select (Investments, REF_DATE, VALUE) %>%
   filter(Investments$North.American.Industry.Classification.System..NAICS. == "Total, all industries", 
          Investments$Canadian.and.foreign.direct.investment == "Foreign direct investment in Canada - Total Book Value",
          Investments$Countries.or.regions == "Total, all countries")
@@ -90,10 +92,10 @@ names(FDI)[c(2)] <- c("FDI_TBV")
 STOCK <- read.csv ("10100125.csv")
 
 ## Filtering and selecting only values for For Toronto Stock Exchange Canadian Financial Index
-Stock_Market_FI <-select(STOCK , ï..REF_DATE, VALUE ) %>%
+Stock_Market_FI <-select(STOCK , REF_DATE, VALUE ) %>%
   filter( STOCK$Toronto.Stock.Exchange.Statistics == "Standard and Poor's/Toronto Stock Exchange Canadian Financial Index",
-          STOCK$ï..REF_DATE %like% "%-01") %>%
-  mutate (ï..REF_DATE = substr(ï..REF_DATE, 1,4))
+          STOCK$REF_DATE %like% "%-01") %>%
+  mutate (REF_DATE = substr(REF_DATE, 1,4))
 
 
 names(Stock_Market_FI)[c(2)] <- c("TSE_FI")
@@ -107,12 +109,12 @@ Retail_data <- read.csv("Retail.csv")
 
 
 ## Filtering and selecting only year and salary values
-Retail_DF <- select (Retail_data, ï..REF_DATE, VALUE) %>% 
+Retail_DF <- select (Retail_data, REF_DATE, VALUE) %>% 
   filter (Retail_data$North.American.Industry.Classification.System..NAICS. == "Retail trade [44-45]", 
           Retail_data$GEO == "Canada", 
           Retail_data$Adjustments == "Unadjusted", 
-          Retail_data$ï..REF_DATE %like% "%-01") %>%
-  mutate (ï..REF_DATE = substr(ï..REF_DATE, 1,4))
+          Retail_data$REF_DATE %like% "%-01") %>%
+  mutate (REF_DATE = substr(REF_DATE, 1,4))
 
 Retail_DF <- mutate(Retail_DF, VALUE = VALUE / 1000)
 
@@ -129,12 +131,12 @@ str(Tourism_data)
 
 
 ## Filtering and selecting only year and salary values
-Tourism_df <- select (Tourism_data, ï..REF_DATE, VALUE) %>% 
+Tourism_df <- select (Tourism_data, REF_DATE, VALUE) %>% 
   filter (Tourism_data$Activities == "Tourism gross domestic product (GDP)", 
           Tourism_data$GEO == "Canada", 
           Tourism_data$Seasonal.adjustment == "Unadjusted", 
-          Tourism_data$ï..REF_DATE %like% "%-01")%>%
-  mutate (ï..REF_DATE = substr(ï..REF_DATE, 1,4))
+          Tourism_data$REF_DATE %like% "%-01")%>%
+  mutate (REF_DATE = substr(REF_DATE, 1,4))
 
 names(Tourism_df)[c(2)] <- c("TOURISM")
 
@@ -150,14 +152,14 @@ str(Salary)
 
 
 ## Filtering and selecting only year and salary values
-Salary_filter <- select (Salary, ï..REF_DATE, VALUE) %>% 
+Salary_filter <- select (Salary, REF_DATE, VALUE) %>% 
   filter (Salary$Sector == "Wages and salaries", 
           Salary$GEO == "Canada", 
           Salary$Seasonal.adjustment == "Unadjusted", 
-          Salary$ï..REF_DATE %like% "%-01") %>%
-  mutate (ï..REF_DATE = substr(ï..REF_DATE, 1,4))
+          Salary$REF_DATE %like% "%-01") %>%
+  mutate (REF_DATE = substr(REF_DATE, 1,4))
 
-## rename to i..ï..REF_DATE to ï..REF_DATE
+## rename to i..REF_DATE to REF_DATE
 names(Salary_filter)[c(2)] <- c("Salary_Value")
 
 
@@ -180,20 +182,20 @@ str(Trade_unfiltered)
 
 
 ## Filtering and selecting only year and trade values
-Trade_df  <- select(Trade_unfiltered, ï..REF_DATE, Trade, VALUE) %>% 
+Trade_df  <- select(Trade_unfiltered, REF_DATE, Trade, VALUE) %>% 
   filter (Trade_unfiltered$Seasonal.adjustment == "Unadjusted", 
           Trade_unfiltered$Basis=="Customs", 
           Trade_unfiltered$North.American.Product.Classification.System..NAPCS. == "Total of all merchandise", 
-          Trade_unfiltered$ï..REF_DATE %like% "%-01") %>%
-  mutate (ï..REF_DATE = substr(ï..REF_DATE, 1,4))
+          Trade_unfiltered$REF_DATE %like% "%-01") %>%
+  mutate (REF_DATE = substr(REF_DATE, 1,4))
 
-Import_filter <- select(Trade_df, ï..REF_DATE, VALUE) %>% 
+Import_filter <- select(Trade_df, REF_DATE, VALUE) %>% 
   filter(Trade_df$Trade == "Import")
 
 names(Import_filter)[c(2)] <- c("Import")
 
 
-Export_filter <- select(Trade_df, ï..REF_DATE, VALUE) %>% 
+Export_filter <- select(Trade_df, REF_DATE, VALUE) %>% 
   filter(Trade_df$Trade == "Export")
 
 names(Export_filter)[c(2)] <- c("Export")
@@ -210,7 +212,7 @@ IN_DF <- read.csv("Inflation_data.csv")
 ## investing the structure of the Inflation data frame
 str(IN_DF)
 
-names(IN_DF)[c(1)] <- c("ï..REF_DATE")
+names(IN_DF)[c(1)] <- c("REF_DATE")
 
 
 ##---------------------------------------------------------------------------------##
@@ -224,24 +226,24 @@ RE_DF <- read.csv("36100434.csv")
 str(RE_DF)
 
 ##Filtering and selecting only year and values from the RE_DF_filter where NAICS. == "Real estate [531]" 
-RE_DF_filter <- select(RE_DF, ï..REF_DATE, VALUE) %>%
+RE_DF_filter <- select(RE_DF, REF_DATE, VALUE) %>%
   filter( RE_DF$Seasonal.adjustment == "Seasonally adjusted at annual rates",
           RE_DF$North.American.Industry.Classification.System..NAICS. == "Real estate [531]",
           RE_DF$Prices == "2012 constant prices",
-          RE_DF$ï..REF_DATE %like% "%-01") %>%
-  mutate (ï..REF_DATE = substr(ï..REF_DATE, 1,4))
+          RE_DF$REF_DATE %like% "%-01") %>%
+  mutate (REF_DATE = substr(REF_DATE, 1,4))
 
 names(RE_DF_filter)[c(2)] <- c("Real_Estate")
 
 
 
 ##Filtering and selecting only year and values from the RE_DF_filter where NAICS. == "Real estate and rental and leasing [53]" 
-RE_LR_DF_filter <- select(RE_DF, ï..REF_DATE, VALUE) %>%
+RE_LR_DF_filter <- select(RE_DF, REF_DATE, VALUE) %>%
   filter( RE_DF$Seasonal.adjustment == "Seasonally adjusted at annual rates",
           RE_DF$North.American.Industry.Classification.System..NAICS. == "Real estate and rental and leasing [53]",
           RE_DF$Prices == "2012 constant prices",
-          RE_DF$ï..REF_DATE %like% "%-01") %>%
-  mutate (ï..REF_DATE = substr(ï..REF_DATE, 1,4))
+          RE_DF$REF_DATE %like% "%-01") %>%
+  mutate (REF_DATE = substr(REF_DATE, 1,4))
 
 names(RE_LR_DF_filter)[c(2)] <- c("Real_Estate_Lease_Rental")
 
@@ -255,7 +257,7 @@ Canada_GDP <- read.csv("canada_gdp.csv")
 ## Investigating about the structure of the file
 str(Canada_GDP)
 
-names(Canada_GDP)[c(1)] <- c("ï..REF_DATE")
+names(Canada_GDP)[c(1)] <- c("REF_DATE")
 
 #######################################################################
 ###################Creating Master Data file###########################
@@ -280,87 +282,157 @@ RE_LR_DF_filter
 
 #### Merging all Data Frames with OUTER JOIN
 #### SO that all data is retained
-MASTER_DATA <- merge(Canada_GDP , IP_DF_filter, by ="ï..REF_DATE", all = TRUE)
-MASTER_DATA <- merge(MASTER_DATA , UR_DF_filter, by ="ï..REF_DATE", all = TRUE)
-MASTER_DATA <- merge(MASTER_DATA , USD_filter, by ="ï..REF_DATE", all = TRUE)
-MASTER_DATA <- merge(MASTER_DATA , IMF_position, by ="ï..REF_DATE", all = TRUE)
-MASTER_DATA <- merge(MASTER_DATA , IR_official, by ="ï..REF_DATE", all = TRUE)
-MASTER_DATA <- merge(MASTER_DATA , Stock_Market_FI, by ="ï..REF_DATE", all = TRUE)
-MASTER_DATA <- merge(MASTER_DATA , CDI, by ="ï..REF_DATE", all = TRUE)
-MASTER_DATA <- merge(MASTER_DATA , FDI, by ="ï..REF_DATE", all = TRUE)
-MASTER_DATA <- merge(MASTER_DATA , Retail_DF, by ="ï..REF_DATE", all = TRUE)
-MASTER_DATA <- merge(MASTER_DATA , Tourism_df, by ="ï..REF_DATE", all = TRUE)
-MASTER_DATA <- merge(MASTER_DATA , Salary_filter, by ="ï..REF_DATE", all = TRUE)
-MASTER_DATA <- merge(MASTER_DATA , Import_filter, by ="ï..REF_DATE", all = TRUE)
-MASTER_DATA <- merge(MASTER_DATA , Export_filter, by ="ï..REF_DATE", all = TRUE)
-MASTER_DATA <- merge(MASTER_DATA , RE_DF_filter, by ="ï..REF_DATE", all = TRUE)
-MASTER_DATA <- merge(MASTER_DATA , RE_LR_DF_filter, by ="ï..REF_DATE", all = TRUE)
+MASTER_DATA <- merge(Canada_GDP , IP_DF_filter, by ="REF_DATE", all = TRUE)
+MASTER_DATA <- merge(MASTER_DATA , UR_DF_filter, by ="REF_DATE", all = TRUE)
+MASTER_DATA <- merge(MASTER_DATA , USD_filter, by ="REF_DATE", all = TRUE)
+MASTER_DATA <- merge(MASTER_DATA , IMF_position, by ="REF_DATE", all = TRUE)
+MASTER_DATA <- merge(MASTER_DATA , IR_official, by ="REF_DATE", all = TRUE)
+MASTER_DATA <- merge(MASTER_DATA , Stock_Market_FI, by ="REF_DATE", all = TRUE)
+MASTER_DATA <- merge(MASTER_DATA , CDI, by ="REF_DATE", all = TRUE)
+MASTER_DATA <- merge(MASTER_DATA , FDI, by ="REF_DATE", all = TRUE)
+MASTER_DATA <- merge(MASTER_DATA , Retail_DF, by ="REF_DATE", all = TRUE)
+MASTER_DATA <- merge(MASTER_DATA , Tourism_df, by ="REF_DATE", all = TRUE)
+MASTER_DATA <- merge(MASTER_DATA , Salary_filter, by ="REF_DATE", all = TRUE)
+MASTER_DATA <- merge(MASTER_DATA , Import_filter, by ="REF_DATE", all = TRUE)
+MASTER_DATA <- merge(MASTER_DATA , Export_filter, by ="REF_DATE", all = TRUE)
+MASTER_DATA <- merge(MASTER_DATA , RE_DF_filter, by ="REF_DATE", all = TRUE)
+MASTER_DATA <- merge(MASTER_DATA , RE_LR_DF_filter, by ="REF_DATE", all = TRUE)
 
 
 str(MASTER_DATA)
 MASTER_DATA
 
-model1 <- lm(MASTER_DATA$Annual_GDP ~ MASTER_DATA$InternatIonal_Payments + MASTER_DATA$Unemployment_Rate + 
-               MASTER_DATA$US_Dollars + MASTER_DATA$IMF_Position + MASTER_DATA$International_Reserves + 
-               MASTER_DATA$TSE_FI + MASTER_DATA$CDI_TBV + MASTER_DATA$FDI_TBV + MASTER_DATA$RETAIL + 
-               MASTER_DATA$TOURISM + MASTER_DATA$Salary_Value + MASTER_DATA$Import + MASTER_DATA$Export + 
-               MASTER_DATA$Real_Estate + MASTER_DATA$Real_Estate_Lease_Rental)
 
-model1 <- lm(Annual_GDP ~ InternatIonal_Payments + Unemployment_Rate + 
-               US_Dollars + IMF_Position + International_Reserves + 
-               TSE_FI + CDI_TBV + FDI_TBV + RETAIL + 
-               TOURISM + Salary_Value + Import + Export + 
-               Real_Estate + Real_Estate_Lease_Rental, data=MASTER_DATA)
+############ SAMPLE EDA #################
 
-summary(model1)
-
-
-
-#new_data <- data.frame(InternatIonal_Payments=915377, Unemployment_Rate=5.8)
-new.data <- data.frame(InternatIonal_Payments=915377, Unemployment_Rate=5.8, US_Dollars=50615, IMF_Position=2084,
-                       International_Reserves=86748, TSE_FI=309.5, CDI_TBV=1288869, FDI_TBV=876856,RETAIL=41458.023,
-                      TOURISM=7972, Salary_Value=77515.063, Import=43878.6, Export=45270, Real_Estate=229136, Real_Estate_Lease_Rental=242512)
-predict(model1, newdata = new.data)
-
-
-############################# irrelevant code below....ignore....################
-
-## predicting the value of Annual_GDP for year 2018 on the basis of above model: -
-MASTER_DATA
-write.csv(MASTER_DATA, "MASTER_DATA.csv", row.names = FALSE)
-
-#predict(model1, data.frame(MASTER_DATA$InternatIonal_Payments=915377, MASTER_DATA$Unemployment_Rate=5.8, 
- #                          MASTER_DATA$US_Dollars=50615))
-#predict(model1, data.frame(MASTER_DATA$InternatIonal_Payments=915377))
-#helper <- expand.grid(MASTER_DATA$InternatIonal_Payments==915377, MASTER_DATA$Unemployment_Rate=5.8)
-#predict(model1,newdata = helper)
+MASTER_DATA_filter <- filter(MASTER_DATA ,
+                             MASTER_DATA$REF_DATE >= 1999,
+                             MASTER_DATA$REF_DATE < 2018)
 
 
 
 
-########### random forest    28 MARCH
-#data_set_size = floor(nrow(MASTER_DATA)*0.80)
-#index <- sample(1:nrow(MASTER_DATA), size=data_set_size)
+MASTER_DATA_filter$REF_DATE <- as.numeric(MASTER_DATA_filter$REF_DATE)
+str(MASTER_DATA_filter)
 
-#training <- MASTER_DATA[index,]
-training <- MASTER_DATA %>% filter(MASTER_DATA$ï..REF_DATE>1998, MASTER_DATA$ï..REF_DATE<2014)
-nrow(training)
+md_correl <- cor(MASTER_DATA_filter[c(4:18)] , use = "complete.obs")
 
-#testing <- MASTER_DATA[-index,]
-testing <- MASTER_DATA %>% filter(MASTER_DATA$ï..REF_DATE>2013, MASTER_DATA$ï..REF_DATE<2019)
-nrow(testing)
+ggcorrplot(md_correl, method ="circle")
 
-#rf <- randomForest(Annual_GDP ~ ., data=training, mtry=4, ntree=2001, importance=TRUE)
-rf <- randomForest(Annual_GDP ~ InternatIonal_Payments + Unemployment_Rate + 
-  US_Dollars + IMF_Position + International_Reserves + 
-  TSE_FI + CDI_TBV + FDI_TBV + RETAIL + 
-  TOURISM + Salary_Value + Import + Export + 
-  Real_Estate + Real_Estate_Lease_Rental, data=training, na.action=na.roughfix, mtry=4, ntree=2001, importance=TRUE)
+ggcorrplot_clustered <- ggcorrplot(md_correl, hc.order = TRUE, type = "lower")
 
-rf
-plot(rf)
 
-#result <- data.frame(testing$Annual_GDP, predict(rf, testing[,1:11], type = "response"))
-result <- data.frame(testing$Annual_GDP, predict(rf, testing, type = "response"))
+
+
+#####Generating Train, Test and Predict data sets
+#################################################
+
+MASTER_DATA_TRAIN <- MASTER_DATA %>%
+  filter( MASTER_DATA$REF_DATE >=1999 , MASTER_DATA$REF_DATE <=2012)
+
+
+MASTER_DATA_TEST <- MASTER_DATA %>%
+  filter( MASTER_DATA$REF_DATE >=2013 , MASTER_DATA$REF_DATE <=2015)
+
+
+pred_2016 <- select (MASTER_DATA , InternatIonal_Payments, Unemployment_Rate, US_Dollars, IMF_Position,
+                     International_Reserves, TSE_FI, CDI_TBV, FDI_TBV, RETAIL,
+                     TOURISM, Salary_Value, Import, Export, Real_Estate, Real_Estate_Lease_Rental) %>%
+  filter(MASTER_DATA$REF_DATE == 2016)
+
+
+pred_2017 <- select (MASTER_DATA , InternatIonal_Payments, Unemployment_Rate, US_Dollars, IMF_Position,
+                     International_Reserves, TSE_FI, CDI_TBV, FDI_TBV, RETAIL,
+                     TOURISM, Salary_Value, Import, Export, Real_Estate, Real_Estate_Lease_Rental) %>%
+  filter(MASTER_DATA$REF_DATE == 2017)
+
+
+pred_2018 <- select (MASTER_DATA , InternatIonal_Payments, Unemployment_Rate, US_Dollars, IMF_Position,
+                     International_Reserves, TSE_FI, CDI_TBV, FDI_TBV, RETAIL,
+                     TOURISM, Salary_Value, Import, Export, Real_Estate, Real_Estate_Lease_Rental) %>%
+  filter(MASTER_DATA$REF_DATE == 2018)
+
+#######################################################################
+
+###########Linear Regression Model##################
+
+
+
+mlr_model <- lm(Annual_GDP ~ InternatIonal_Payments + Unemployment_Rate + 
+                  US_Dollars + IMF_Position + International_Reserves + 
+                  TSE_FI + CDI_TBV + FDI_TBV + RETAIL + 
+                  TOURISM + Salary_Value + Import + Export + 
+                  Real_Estate + Real_Estate_Lease_Rental, data=MASTER_DATA)
+
+summary(mlr_model)
+
+######  Residual standard error: 52460 on 4 degrees of freedom
+######  (48 observations deleted due to missingness)
+######  Multiple R-squared:  0.9965,	Adjusted R-squared:  0.9836 
+######  F-statistic:  76.9 on 15 and 4 DF,  p-value: 0.000375
+
+
+
+predict(mlr_model, newdata = pred_2016)
+####  Actual = 1530024    Predicted = 1530627 
+
+predict(mlr_model, newdata = pred_2017)
+####  Actual = 1649934    Predicted = 1634087 
+
+predict(mlr_model, newdata = pred_2018)
+####  Actual = 1712479    Predicted = 1729176 
+
+
+
+
+
+########### Random forest Model ###########  
+
+
+nrow(MASTER_DATA_TRAIN)
+####    14
+
+nrow(MASTER_DATA_TEST)
+####    3
+
+rf_model <- randomForest(Annual_GDP ~ InternatIonal_Payments + Unemployment_Rate + 
+                           US_Dollars + IMF_Position + International_Reserves + 
+                           TSE_FI + CDI_TBV + FDI_TBV + RETAIL + 
+                           TOURISM + Salary_Value + Import + Export + 
+                           Real_Estate + Real_Estate_Lease_Rental, data=MASTER_DATA, 
+                         na.action=na.roughfix, mtry=4, ntree=2001, importance=TRUE)
+
+summary(rf_model)
+####    Type of random forest: regression
+####    Number of trees: 2001
+####    No. of variables tried at each split: 4
+
+####    Mean of squared residuals: 14330975657
+####    % Var explained: 90.75
+
+plot(rf_model)
+
+result <- data.frame(MASTER_DATA_TEST$Annual_GDP, predict(rf_model, MASTER_DATA_TEST, type = "response"))
+#                      Actual                        Predicted            
+#                      1846595                       1791554
+#                      1805745                       1763248
+#                      1556506                       1633319
+
+
 head(result)
 plot(result)
+
+pred_set <- MASTER_DATA %>%
+  filter(MASTER_DATA$REF_DATE >= 2016, MASTER_DATA$REF_DATE <= 2018)
+
+predicted <- data.frame(pred_set$Annual_GDP, predict(rf_model, pred_set, type = "response"))
+#             Actual                  Predicted              
+#             1530024                 1599979
+#             1649934                 1593044
+#             1712479                 1507169
+
+
+
+
+
+
