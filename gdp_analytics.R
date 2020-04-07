@@ -9,8 +9,10 @@ library(FactoMineR)
 library(rpart)
 library(rpart.plot)
 library(Metrics)
+library(factoextra)
 
 
+environment(select)
 
 ## Loading the International Payments File
 IP_DF <- read.csv("36100014.csv")
@@ -311,7 +313,7 @@ MASTER_DATA
 
 MASTER_DATA_filter <- filter(MASTER_DATA ,
                              MASTER_DATA$REF_DATE >= 1999,
-                             MASTER_DATA$REF_DATE < 2018)
+                             MASTER_DATA$REF_DATE <= 2018)
 
 
 
@@ -326,7 +328,366 @@ ggcorrplot(md_correl)
 ggcorrplot_clustered <- ggcorrplot(md_correl, hc.order = TRUE, type = "lower")
 
 
+####################  Univariate Analysis ####################  
 
+
+#===================#
+#   Color palette   #
+#===================#
+
+cp_2 <- c("#FEA47F", "#F97F51")
+cp_3 <- c("#2A363B", "#E84A5F", "#FF847C")
+cp_5 <- c("#2A363B", "#E84A5F", "#FF847C", "#FECEAB", "#99B898")
+cp_6 <- c("#2A363B", "#E84A5F", "#FF847C", "#FECEAB", "#99B898", "#BDC581")
+cp_8 <- c("#FEA47F", "#F97F51", "#B33771", "#3B3B98", "#58B19F", "#BDC581", "#2C3A47", "#82589F")
+cp_10 <- c("#2A363B", "#E84A5F","#FEA47F", "#F97F51", "#B33771", "#3B3B98", "#58B19F", "#BDC581", "#2C3A47", "#82589F")
+
+
+####################  creating a correlation matrix
+MASTER_DATA_filter$REF_DATE <- as.numeric(MASTER_DATA_filter$REF_DATE)
+
+cor_matrix <- cor(MASTER_DATA_filter[,c(2, 4:18)])
+round (cor_matrix,2)
+
+###                              Annual_GDP 
+###  Annual_GDP                     1.00                   
+###  InternatIonal_Payments         0.89                   
+###  Unemployment_Rate             -0.14                  
+###  US_Dollars                     0.66                  
+###  IMF_Position                   0.17                  
+###  International_Reserves         0.84                  
+###  TSE_FI                         0.85                 
+###  CDI_TBV                        0.83                  
+###  FDI_TBV                        0.91                   
+###  RETAIL                         0.95                   
+###  TOURISM                        0.94                  
+###  Salary_Value                   0.94                 
+###  Import                         0.82                  
+###  Export                         0.59                  
+###  Real_Estate                    0.94                  
+###  Real_Estate_Lease_Rental       0.94                  
+
+
+####################  InternatIonal_Payments
+
+boxplot(MASTER_DATA_filter$InternatIonal_Payments, main="Boxplot for InternatIonal_Payments", ylab="InternatIonal_Payments", col="#FF847C")
+
+hist(MASTER_DATA_filter$InternatIonal_Payments, col="#FF847C" ,main="Histogram for InternatIonal_Payments", xlab="InternatIonal_Payments")
+
+MASTER_DATA_filter %>%
+  ggplot( aes(x=REF_DATE, y=InternatIonal_Payments, color = Annual_GDP, group = 1)) +
+  geom_point()+
+  geom_line() +
+  scale_fill_manual(values = cp_2) +
+  labs(x=" YEAR ", y="InternatIonal_Payments  (in million $ )", 
+       fill="Annual_GDP_Canada (in Million $)", 
+       title="InternatIonal_Payments to Annual_GDP PLOT") +
+  theme_minimal()
+
+####################  Unemployment_Rate
+
+boxplot(MASTER_DATA_filter$Unemployment_Rate, main="Boxplot for Unemployment_Rate", ylab="Unemployment_Rate", col="#FF847C")
+
+hist(MASTER_DATA_filter$Unemployment_Rate, col="#FF847C" ,main="Histogram for Unemployment_Rate", xlab="Unemployment_Rate")
+
+MASTER_DATA_filter %>%
+  ggplot( aes(x=REF_DATE, y=Unemployment_Rate, color = Annual_GDP, group = 1)) +
+  geom_point()+
+  geom_line() +
+  scale_fill_manual(values = cp_2) +
+  labs(x=" YEAR ", y="Unemployment_Rate  (in % )", 
+       fill="Annual_GDP_Canada (in Million $)", 
+       title="Unemployment_Rate to Annual_GDP PLOT") +
+  theme_minimal()
+
+####################  US_Dollars
+
+boxplot(MASTER_DATA_filter$US_Dollars, main="Boxplot for US_Dollars", ylab="US_Dollars", col="#FF847C")
+
+hist(MASTER_DATA_filter$US_Dollars, col="#FF847C" ,main="Histogram for US_Dollars", xlab="US_Dollars")
+
+
+MASTER_DATA_filter %>%
+  ggplot( aes(x=REF_DATE, y=US_Dollars, color = Annual_GDP, group = 1)) +
+  geom_point()+
+  geom_line() +
+  scale_fill_manual(values = cp_2) +
+  labs(x=" YEAR ", y="US_Dollars  (in million $ )", 
+       fill="Annual_GDP_Canada (in Million $)", 
+       title="US_Dollars to Annual_GDP PLOT") +
+  theme_minimal()
+
+####################  IMF_Position
+
+boxplot(MASTER_DATA_filter$IMF_Position, main="Boxplot for IMF_Position", ylab="IMF_Position", col="#FF847C")
+
+hist(MASTER_DATA_filter$IMF_Position, col="#FF847C" ,main="Histogram for IMF_Position", xlab="IMF_Position")
+
+MASTER_DATA_filter %>%
+  ggplot( aes(x=REF_DATE, y=IMF_Position, color = Annual_GDP, group = 1)) +
+  geom_point()+
+  geom_line() +
+  scale_fill_manual(values = cp_2) +
+  labs(x=" YEAR ", y="IMF_Position  (in million $ )", 
+       fill="Annual_GDP_Canada (in Million $)", 
+       title="IMF_Position to Annual_GDP PLOT") +
+  theme_minimal()
+
+####################  International_Reserves
+
+boxplot(MASTER_DATA_filter$International_Reserves, main="Boxplot for International_Reserves", ylab="International_Reserves", col="#FF847C")
+
+hist(MASTER_DATA_filter$International_Reserves, col="#FF847C" ,main="Histogram for International_Reserves", xlab="International_Reserves")
+
+MASTER_DATA_filter %>%
+  ggplot( aes(x=REF_DATE, y=International_Reserves, color = Annual_GDP, group = 1)) +
+  geom_point()+
+  geom_line() +
+  scale_fill_manual(values = cp_2) +
+  labs(x=" YEAR ", y="International_Reserves  (in million $ )", 
+       fill="Annual_GDP_Canada (in Million $)", 
+       title="International_Reserves to Annual_GDP PLOT") +
+  theme_minimal()
+
+####################  TSE_FI
+
+boxplot(MASTER_DATA_filter$TSE_FI, main="Boxplot for TSE_FI", ylab="TSE_FI", col="#FF847C")
+
+hist(MASTER_DATA_filter$TSE_FI, col="#FF847C" ,main="Histogram for TSE_FI", xlab="TSE_FI")
+
+MASTER_DATA_filter %>%
+  ggplot( aes(x=REF_DATE, y=TSE_FI, color = Annual_GDP, group = 1)) +
+  geom_point()+
+  geom_line() +
+  scale_fill_manual(values = cp_2) +
+  labs(x=" YEAR ", y="TSE_FI  (index )", 
+       fill="Annual_GDP_Canada (in Million $)", 
+       title="TSE_FI to Annual_GDP PLOT") +
+  theme_minimal()
+
+####################  CDI_TBV
+
+boxplot(MASTER_DATA_filter$CDI_TBV, main="Boxplot for CDI_TBV", ylab="CDI_TBV", col="#FF847C")
+
+hist(MASTER_DATA_filter$CDI_TBV, col="#FF847C" ,main="Histogram for CDI_TBV", xlab="CDI_TBV")
+
+MASTER_DATA_filter %>%
+  ggplot( aes(x=REF_DATE, y=CDI_TBV, color = Annual_GDP, group = 1)) +
+  geom_point()+
+  geom_line() +
+  scale_fill_manual(values = cp_2) +
+  labs(x=" YEAR ", y="CDI_TBV  (in million $ )", 
+       fill="Annual_GDP_Canada (in Million $)", 
+       title="CDI_TBV to Annual_GDP PLOT") +
+  theme_minimal()
+
+####################  FDI_TBV
+
+boxplot(MASTER_DATA_filter$FDI_TBV, main="Boxplot for FDI_TBV", ylab="FDI_TBV", col="#FF847C")
+
+hist(MASTER_DATA_filter$FDI_TBV, col="#FF847C" ,main="Histogram for FDI_TBV", xlab="FDI_TBV")
+
+MASTER_DATA_filter %>%
+  ggplot( aes(x=REF_DATE, y=FDI_TBV, color = Annual_GDP, group = 1)) +
+  geom_point()+
+  geom_line() +
+  scale_fill_manual(values = cp_2) +
+  labs(x=" YEAR ", y="FDI_TBV  (in million $ )", 
+       fill="Annual_GDP_Canada (in Million $)", 
+       title="FDI_TBV to Annual_GDP PLOT") +
+  theme_minimal()
+
+
+####################  RETAIL
+
+boxplot(MASTER_DATA_filter$RETAIL, main="Boxplot for RETAIL", ylab="RETAIL", col="#FF847C")
+
+hist(MASTER_DATA_filter$RETAIL, col="#FF847C" ,main="Histogram for RETAIL", xlab="RETAIL")
+
+MASTER_DATA_filter %>%
+  ggplot( aes(x=REF_DATE, y=RETAIL, color = Annual_GDP, group = 1)) +
+  geom_point()+
+  geom_line() +
+  scale_fill_manual(values = cp_2) +
+  labs(x=" YEAR ", y="RETAIL  (in million $ )", 
+       fill="Annual_GDP_Canada (in Million $)", 
+       title="RETAIL to Annual_GDP PLOT") +
+  theme_minimal()
+
+####################  TOURISM 
+
+boxplot(MASTER_DATA_filter$TOURISM , main="Boxplot for TOURISM ", ylab="TOURISM", col="#FF847C")
+
+hist(MASTER_DATA_filter$TOURISM , col="#FF847C" ,main="Histogram for TOURISM", xlab="TOURISM")
+
+MASTER_DATA_filter %>%
+  ggplot( aes(x=REF_DATE, y=TOURISM, color = Annual_GDP, group = 1)) +
+  geom_point()+
+  geom_line() +
+  scale_fill_manual(values = cp_2) +
+  labs(x=" YEAR ", y="TOURISM  (in million $ )", 
+       fill="Annual_GDP_Canada (in Million $)", 
+       title="TOURISM to Annual_GDP PLOT") +
+  theme_minimal()
+
+####################  Salary_Value 
+
+boxplot(MASTER_DATA_filter$Salary_Value , main="Boxplot for Salary_Value ", ylab="Salary_Value", col="#FF847C")
+
+hist(MASTER_DATA_filter$Salary_Value , col="#FF847C" ,main="Histogram for Salary_Value", xlab="Salary_Value")
+
+MASTER_DATA_filter %>%
+  ggplot( aes(x=REF_DATE, y=Salary_Value, color = Annual_GDP, group = 1)) +
+  geom_point()+
+  geom_line() +
+  scale_fill_manual(values = cp_2) +
+  labs(x=" YEAR ", y="Salary_Value  (in million $ )", 
+       fill="Annual_GDP_Canada (in Million $)", 
+       title="Salary_Value to Annual_GDP PLOT") +
+  theme_minimal()
+
+####################  Import  
+
+boxplot(MASTER_DATA_filter$Import  , main="Boxplot for Import  ", ylab="Import ", col="#FF847C")
+
+hist(MASTER_DATA_filter$Import  , col="#FF847C" ,main="Histogram for Import ", xlab="Import ")
+
+MASTER_DATA_filter %>%
+  ggplot( aes(x=REF_DATE, y=Import, color = Annual_GDP, group = 1)) +
+  geom_point()+
+  geom_line() +
+  scale_fill_manual(values = cp_2) +
+  labs(x=" YEAR ", y="Import  (in million $ )", 
+       fill="Annual_GDP_Canada (in Million $)", 
+       title="Import to Annual_GDP PLOT") +
+  theme_minimal()
+
+####################  Export   
+
+boxplot(MASTER_DATA_filter$Export   , main="Boxplot for Export   ", ylab="Export  ", col="#FF847C")
+
+hist(MASTER_DATA_filter$Export   , col="#FF847C" ,main="Histogram for Export  ", xlab="Export  ")
+
+MASTER_DATA_filter %>%
+  ggplot( aes(x=REF_DATE, y=Export, color = Annual_GDP, group = 1)) +
+  geom_point()+
+  geom_line() +
+  scale_fill_manual(values = cp_2) +
+  labs(x=" YEAR ", y="Export  (in million $ )", 
+       fill="Annual_GDP_Canada (in Million $)", 
+       title="Export to Annual_GDP PLOT") +
+  theme_minimal()
+
+####################  Real_Estate   
+
+boxplot(MASTER_DATA_filter$Real_Estate   , main="Boxplot for Real_Estate   ", ylab="Real_Estate  ", col="#FF847C")
+
+hist(MASTER_DATA_filter$Real_Estate   , col="#FF847C" ,main="Histogram for Real_Estate  ", xlab="Real_Estate  ")
+
+MASTER_DATA_filter %>%
+  ggplot( aes(x=REF_DATE, y=Real_Estate, color = Annual_GDP, group = 1)) +
+  geom_point()+
+  geom_line() +
+  scale_fill_manual(values = cp_2) +
+  labs(x=" YEAR ", y="Real_Estate  (in million $ )", 
+       fill="Annual_GDP_Canada (in Million $)", 
+       title="Real_Estate to Annual_GDP PLOT") +
+  theme_minimal()
+
+####################  Real_Estate_Lease_Rental   
+
+boxplot(MASTER_DATA_filter$Real_Estate_Lease_Rental   , main="Boxplot for Real_Estate_Lease_Rental   ", ylab="Real_Estate_Lease_Rental  ", col="#FF847C")
+
+hist(MASTER_DATA_filter$Real_Estate_Lease_Rental   , col="#FF847C" ,main="Histogram for Real_Estate_Lease_Rental  ", xlab="Real_Estate_Lease_Rental  ")
+
+MASTER_DATA_filter %>%
+  ggplot( aes(x=REF_DATE, y=Real_Estate_Lease_Rental, color = Annual_GDP, group = 1)) +
+  geom_point()+
+  geom_line() +
+  scale_fill_manual(values = cp_2) +
+  labs(x=" YEAR ", y="Real_Estate_Lease_Rental  (in million $ )", 
+       fill="Annual_GDP_Canada (in Million $)", 
+       title="Real_Estate_Lease_Rental to Annual_GDP PLOT") +
+  theme_minimal()
+
+
+####################  PCA   ####################  
+str(MASTER_DATA_filter[,c(4:18)])
+
+colnames(MASTER_DATA_filter[,c(4:18)])
+
+MASTER_DATA_filter_PCA <- prcomp(MASTER_DATA_filter[,c(4:18)], center = TRUE,scale. = TRUE)
+
+summary(MASTER_DATA_filter_PCA)
+
+str(MASTER_DATA_filter_PCA)
+
+names (MASTER_DATA_filter_PCA)
+
+print(MASTER_DATA_filter_PCA)
+
+?PCA
+
+pca_result <- PCA(MASTER_DATA_filter[,c(4:18)], graph = TRUE,scale.unit = TRUE)
+
+pca_result$eig
+pca_result$var$cos2
+pca_result$var$contrib
+dimdesc(pca_result)
+
+summary(pca_result, nbelements = 5)
+
+pca_result$eig[,2][1:3]
+pca_result$eig[,3][1:3]
+
+xx <- get_eigenvalue(pca_result)
+round(xx,4)
+
+
+#####   Kaiser-Guttman Rule eigenvalue >1 should be kept hance only dimensions
+
+
+
+#Screeplot
+fviz_screeplot(pca_result)
+
+# Create a factor map for the variables.
+fviz_pca_var(pca_result, select.var = list(cos2 = 0.7), repel = TRUE)
+
+# Modify the code to create a factor map for the individuals.
+fviz_pca_ind(pca_result, select.ind = list(cos2 = 0.7), repel = TRUE)
+
+# Create a barplot for the variables with the highest cos2 in the 1st PC.
+fviz_cos2(pca_result, choice = "var", axes = 1)
+
+# Create a barplot for the variables with the highest cos2 in the 2nd PC.
+fviz_cos2(pca_result, choice = "var", axes = 2)
+
+# Create a factor map for the top 5 variables with the highest contributions.
+fviz_pca_var(pca_result, select.var = list(contrib = 5), repel = TRUE)
+
+# Create a factor map for the top 5 individuals with the highest contributions.
+fviz_pca_ind(pca_result, select.ind = list(contrib = 5), repel = TRUE)
+
+
+# Create a barplot for the variables with the highest contributions to the 1st PC.
+fviz_contrib(pca_result, choice = "var", axes = 1)
+fviz_contrib(pca_result, choice = "var", axes = 1, top = 5)
+
+
+# Create a barplot for the variables with the highest contributions to the 2nd PC.
+fviz_contrib(pca_result, choice = "var", axes = 2, top = 5)
+
+# Create a biplot with no labels for all individuals with the geom argument.
+fviz_pca_biplot(pca_result)
+
+# Create ellipsoids with habillage for wheeltype
+fviz_pca_ind(pca_result,  addEllipses = TRUE)
+
+# Create the biplot with ellipsoids
+fviz_pca_biplot(pca_result,  addEllipses = TRUE, alpha.var = "cos2")
+
+pca_result$eig
 
 #####Generating Train, Test and Predict data sets
 #################################################
@@ -462,6 +823,10 @@ MASTER_DATA_filter <- filter(MASTER_DATA ,
                              MASTER_DATA$REF_DATE >= 1999,
                              MASTER_DATA$REF_DATE < 2016)
 
+Test <- filter(MASTER_DATA ,
+               MASTER_DATA$REF_DATE >= 2016,
+               MASTER_DATA$REF_DATE < 2019)
+
 set.seed(123)
 assignment <- sample(1:3, size = nrow(MASTER_DATA_filter), prob = c(0.7, 0.15, 0.15), replace = TRUE)
 
@@ -476,23 +841,24 @@ rt_model <- rpart(formula = Annual_GDP ~ InternatIonal_Payments + Unemployment_R
                     TSE_FI + CDI_TBV + FDI_TBV + RETAIL + 
                     TOURISM + Salary_Value + Import + Export + 
                     Real_Estate + Real_Estate_Lease_Rental, 
-                  data = mdf_train, 
+                  data = MASTER_DATA_filter, 
                   method = "anova")
 
 
 # Look at the model output                      
-print(rt_model)
+summary(rt_model)
+
 
 
 # Generate predictions on a test set
 pred <- predict(object = rt_model,   
-                newdata = mdf_test)   
+                newdata = Test)   
 
 pred_valid <- predict(object = rt_model,   
                       newdata = mdf_valid)  
 
 # Compute the RMSE
-rmse(actual = mdf_test$Annual_GDP, 
+rmse(actual = Test$Annual_GDP, 
      predicted = pred)
 ##### 644579.1
 
@@ -605,7 +971,7 @@ summary(mlr_model_scaled)
 ###########     Multiple R-squared:  0.9979,	Adjusted R-squared:  0.9829 
 ###########     F-statistic: 66.67 on 14 and 2 DF,  p-value: 0.01487
 
-
+coef(mlr_model_scaled)
 
 
 predict(mlr_model_scaled, newdata = pred_2016_scaled)
@@ -636,8 +1002,79 @@ rmse (actual = 0.87605062 , predicted = 1.836856 )
 #### 0.9608054
 
 
+xxxx <-cor(MLR_SCALED[,c(2, 4:18)])
+round (xxxx,2)
 
 
+############################ Linear Regression Model with SCALING after PCA ##########################################
+
+##### Features Selected after PCA 
+names(MASTER_DATA[,c(13,4,17,11,18,14,10,12,15,8)])
+
+
+MLR_SCALED_PCA <- MASTER_DATA[,c (1,2,13,4,17,11,18,14,10,12,15,8)] %>%
+  filter( MASTER_DATA$REF_DATE >=1999 , MASTER_DATA$REF_DATE <=2018)
+
+MLR_SCALED_PCA[,2:12] <-scale(MLR_SCALED_PCA[,2:12] )
+
+names (MLR_SCALED_PCA)
+str(MLR_SCALED_PCA)
+
+MLR_SCALED_PCA_TRAIN <- MLR_SCALED_PCA %>%
+  filter(MLR_SCALED_PCA$REF_DATE >=1999 ,  MLR_SCALED_PCA$REF_DATE <=2015)
+
+pred_2016_scaled_pca <- MLR_SCALED_PCA %>%
+  filter(MLR_SCALED_PCA$REF_DATE == 2016)
+
+pred_2017_scaled_pca <-MLR_SCALED_PCA %>%
+  filter(MLR_SCALED$REF_DATE == 2017)
+
+pred_2018_scaled_pca <-MLR_SCALED_PCA %>%
+  filter(MLR_SCALED_PCA$REF_DATE == 2018)
+
+pred_2016_scaled_pca <- within (pred_2016_scaled_pca , rm (REF_DATE, Annual_GDP))
+pred_2017_scaled_pca <- within (pred_2017_scaled_pca , rm (REF_DATE, Annual_GDP))
+pred_2018_scaled_pca <- within (pred_2018_scaled_pca , rm (REF_DATE, Annual_GDP))
+
+
+
+mlr_model_scaled_pca <- lm(Annual_GDP ~ TOURISM + InternatIonal_Payments + Real_Estate  + 
+                             FDI_TBV +  Real_Estate_Lease_Rental + Salary_Value + 
+                             CDI_TBV  +  RETAIL + Import + International_Reserves, data=MLR_SCALED_PCA_TRAIN)
+
+summary(mlr_model_scaled_pca)
+
+###########     Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+###########     Residual standard error: 0.1212 on 6 degrees of freedom
+###########     Multiple R-squared:  0.9949,	Adjusted R-squared:  0.9864 
+###########     F-statistic: 117.1 on 10 and 6 DF,  p-value: 4.567e-06
+
+coef(mlr_model_scaled_pca)
+
+###########     (Intercept)                  TOURISM   InternatIonal_Payments              Real_Estate 
+###########     0.04475269               1.51775872               0.23200432               0.58871156 
+###########     FDI_TBV Real_Estate_Lease_Rental             Salary_Value                  CDI_TBV 
+###########     -0.68083465               0.52855570               0.53108814              -1.26620035 
+###########     RETAIL                   Import   International_Reserves 
+###########     0.19217244              -0.39235160              -0.35996658 
+
+predict(mlr_model_scaled_pca, newdata = pred_2016_scaled_pca)
+####  Actual = 0.43044068	    Predicted = 0.5547406   
+
+rmse (actual = 0.43044068 , predicted = 0.5547406 )
+#### 0.1242999
+
+predict(mlr_model_scaled_pca, newdata = pred_2017_scaled_pca)
+####  Actual = 0.72329693	    Predicted = 1.046634  
+
+rmse (actual = 0.72329693	 , predicted =  1.046634 )
+#### 0.3233371
+
+predict(mlr_model_scaled_pca, newdata = pred_2018_scaled_pca)
+####  Actual = 0.87605062    Predicted = 1.323468  
+
+rmse (actual = 0.87605062 , predicted =  1.323468  )
+#### 0.4474174
 
 
 
