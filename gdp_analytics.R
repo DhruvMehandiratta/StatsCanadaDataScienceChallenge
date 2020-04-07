@@ -1077,5 +1077,73 @@ rmse (actual = 0.87605062 , predicted =  1.323468  )
 #### 0.4474174
 
 
+########### Random forest Model with Scaling and PCA ###########  
 
+
+##### Features Selected after PCA 
+names(MASTER_DATA[,c(13,4,17,11,18,14,10,12,15,8)])
+
+
+RF_SCALED_PCA <- MASTER_DATA[,c (1,2,13,4,17,11,18,14,10,12,15,8)] %>%
+  filter( MASTER_DATA$REF_DATE >=1999 , MASTER_DATA$REF_DATE <=2018)
+
+RF_SCALED_PCA[,2:12] <-scale(RF_SCALED_PCA[,2:12] )
+
+
+RF_SCALED_PCA_TRAIN <- RF_SCALED_PCA %>%
+  filter(RF_SCALED_PCA$REF_DATE >=1999 ,  RF_SCALED_PCA$REF_DATE <=2012)
+
+RF_SCALED_PCA_TEST <- RF_SCALED_PCA %>%
+  filter(RF_SCALED_PCA$REF_DATE >=2013 ,  RF_SCALED_PCA$REF_DATE <=2015)
+
+
+
+
+
+nrow(RF_SCALED_PCA_TRAIN)
+####    14
+
+nrow(RF_SCALED_PCA_TEST)
+####    3
+
+rf_model_scaled_pca <- randomForest(Annual_GDP ~ TOURISM + InternatIonal_Payments + Real_Estate  + 
+                                      FDI_TBV +  Real_Estate_Lease_Rental + Salary_Value + 
+                                      CDI_TBV  +  RETAIL + Import + International_Reserves, data=RF_SCALED_PCA_TRAIN, 
+                                    na.action=na.roughfix, mtry=4, ntree=2001, importance=TRUE)
+
+summary(rf_model_scaled_pca)
+####    Type of random forest: regression
+####    Number of trees: 2001
+####    No. of variables tried at each split: 4
+
+####    Mean of squared residuals: 0.07983514
+####    % Var explained: 91.37
+
+plot(rf_model_scaled_pca)
+
+result_rf <- data.frame(RF_SCALED_PCA_TEST$Annual_GDP, predict(rf_model_scaled_pca, RF_SCALED_PCA_TEST, type = "response"))
+#                      Actual                        Predicted            
+#                     1.2036022                                                           0.8860223
+#                     1.1038342                                                           0.8860223
+#                     0.4951177                                                           0.8860223
+
+
+head(result_rf)
+plot(result_rf)
+
+pred_set <- RF_SCALED_PCA %>%
+  filter(RF_SCALED_PCA$REF_DATE >= 2016, RF_SCALED_PCA$REF_DATE <= 2018)
+
+predicted <- data.frame(pred_set$Annual_GDP, predict(rf_model_scaled_pca, pred_set, type = "response"))
+#           0.4304407                                                 0.8860223
+#           0.7232969                                                 0.8860223
+#           0.8760506                                                 0.8860223
+
+
+str(predicted)
+
+rmse(actual = predicted$pred_set.Annual_GDP , 
+     predicted = predicted$predict.rf_model..pred_set..type....response..)
+
+##### 
 
